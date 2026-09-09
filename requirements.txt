@@ -1,0 +1,10 @@
+# --- Motor de automatización ---
+ansible-core          # Ansible sin colecciones extra (ligero, ideal para Docker)
+
+# --- HTTP / REST genérico ---
+requests              # Cliente HTTP para consumir APIs REST (iControl, aXAPI, NITRO)
+urllib3               # Manejo de conexiones TLS debajo de requests (ej. disable_warnings)
+
+# --- SDKs por vendor ---
+f5-sdk                # SDK oficial de F5 para iControl REST (objetos: pools, VIPs, nodos...)
+acos-client>=2.9.0    # Cliente oficial de A10 Networks para su API aXAPI
