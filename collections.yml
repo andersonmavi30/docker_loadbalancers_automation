@@ -1,0 +1,10 @@
+---
+collections:
+  # --- F5 BIG-IP ---
+  - name: f5networks.f5_modules
+
+  # --- A10 Networks Thunder ---
+  - name: a10.acos_axapi
+
+  # --- Citrix NetScaler ADC ---
+  - name: netscaler.adc
