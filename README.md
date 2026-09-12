@@ -2,189 +2,136 @@
 
 🇨🇴 [Español](README.es.md)
 
-All-in-one Docker environment designed for **multi-vendor Load Balancer / Application Delivery Controller automation**.
+Containerized automation environment for **multi-vendor Load Balancers and Application Delivery Controllers (ADC)**.
 
-**F5 Networks BIG-IP · A10 Networks Thunder / ACOS · Citrix NetScaler ADC**
+**F5 Networks BIG-IP · A10 Networks Thunder / ACOS · NetScaler ADC**
 
-Built with the same philosophy as:
+This project follows the same containerized automation approach used in:
 
 - [docker_network_automation](https://github.com/andersonmavi30/docker_network_automation) — Network Automation
 - [docker_firewall_automation](https://github.com/andersonmavi30/docker_firewall_automation) — Firewall Automation
 
-This repository extends that automation ecosystem to **Application Delivery Controllers and Load Balancers**.
+The goal is to provide a reproducible Docker-based environment with Python, Ansible and vendor-specific automation tooling for ADC and load-balancer administration.
 
 ---
 
 ## 🎯 Project Objective
 
-The goal of this project is to build a portable Docker image containing the tools required to automate common Load Balancer and ADC administration tasks.
+This repository packages the automation dependencies required to work with multiple Load Balancer / ADC platforms into a single Docker image.
 
-Instead of installing Python libraries, Ansible collections and API tools directly on the automation host, the required environment can be packaged inside a reusable container.
+The current implementation provides:
 
-The project is designed around:
+- Rocky Linux 10 as the container base
+- Python 3 and pip
+- Ansible Core
+- Vendor-specific Python SDKs where available
+- Vendor-specific Ansible collections
+- Generic HTTP/REST libraries
+- SSH client utilities
+- A persistent container mode for use as an automation workspace or jumpbox
 
-- Multi-vendor automation
-- API-first workflows
-- Python automation
-- Ansible automation
-- Reproducible environments
-- Infrastructure as Code
-- NetDevOps practices
-- CI/CD integration
+This keeps automation tooling isolated from the host operating system and makes the environment easier to reproduce across labs and development systems.
+
+---
 
 ## ⚖️ Supported Platforms
 
-| Vendor | Platform | Automation Interface |
+| Vendor | Platform | Current Automation Tooling |
 |---|---|---|
-| **F5 Networks** | BIG-IP / LTM | iControl REST API / Ansible |
-| **A10 Networks** | Thunder ADC / ACOS | aXAPI v3 REST API |
-| **Citrix / NetScaler** | NetScaler ADC | NITRO REST API |
+| **F5 Networks** | BIG-IP / LTM | `f5-sdk`, `f5networks.f5_modules`, REST APIs |
+| **A10 Networks** | Thunder ADC / ACOS | `acos-client`, `a10.acos_axapi`, aXAPI |
+| **NetScaler** | NetScaler ADC | `netscaler.adc`, REST/NITRO workflows |
+
+---
+
+## 🧱 Container Base
+
+The image currently uses:
+
+```text
+Rocky Linux 10
+```
+
+The working directory inside the container is:
+
+```text
+/automation
+```
+
+The Dockerfile installs the following system packages:
+
+```text
+python3
+python3-pip
+git
+openssh-clients
+sshpass
+```
+
+The default container command is:
+
+```text
+sleep infinity
+```
+
+This allows the container to stay running and be used as a persistent automation environment.
+
+---
+
+## 🐍 Python Automation Stack
+
+The current `requirements.txt` installs:
+
+| Package | Purpose |
+|---|---|
+| `ansible-core` | Core Ansible automation engine |
+| `requests` | Generic HTTP/REST API requests |
+| `urllib3` | HTTP/TLS connection handling |
+| `f5-sdk` | Python SDK for F5 BIG-IP automation |
+| `acos-client>=2.9.0` | Python client for A10 ACOS / aXAPI |
+
+These dependencies provide both generic API access and vendor-specific automation capabilities.
+
+---
+
+## 🤖 Ansible Collections
+
+The current `collections.yml` installs three vendor collections:
+
+```yaml
+collections:
+  - name: f5networks.f5_modules
+  - name: a10.acos_axapi
+  - name: netscaler.adc
+```
 
 ### F5 Networks BIG-IP
-
-Automation can progressively use:
-
-- iControl REST API
-- `f5networks.f5_modules`
-- Python
-- HTTP/REST automation
-- Ansible
-
-Typical objects may include:
-
-- Virtual Servers
-- Pools
-- Pool Members
-- Nodes
-- Health Monitors
-- Profiles
-- SSL/TLS objects
-- High Availability
-- Configuration backups
-- Operational information
-
-### A10 Networks Thunder ADC
-
-Automation will primarily use **aXAPI**, the REST-based automation interface available on A10 ACOS.
-
-Planned automation areas include:
-
-- Virtual Servers
-- Service Groups
-- Real Servers
-- Health Monitors
-- SSL templates
-- Traffic management
-- Configuration management
-- Operational statistics
-- Backup and validation
-
-### Citrix NetScaler ADC
-
-Automation will progressively use the **NITRO REST API** and available automation tooling.
-
-Planned areas include:
-
-- Load Balancing Virtual Servers
-- Services
-- Service Groups
-- Servers
-- Health Monitors
-- SSL configuration
-- Content Switching
-- Configuration backups
-- Operational information
-
-## 🧰 Container Contents — Planned
-
-### 🐍 Python
-
-- Python 3
-- `requests`
-- `httpx`
-- `urllib3`
-- `pyyaml`
-- `jinja2`
-- `netmiko`
-- `paramiko`
-
-Additional vendor-specific SDKs may be incorporated when required.
-
-### 🤖 Ansible
-
-Ansible will be included for vendor automation where appropriate.
-
-F5 BIG-IP automation can use:
 
 ```text
 f5networks.f5_modules
 ```
 
-Other vendors may be automated through their REST APIs, SDKs or supported Ansible integrations.
+Designed for automating BIG-IP objects and operational tasks through Ansible.
 
-### 🛠️ Linux / API Utilities
-
-```text
-curl
-wget
-git
-jq
-ssh
-ping
-openssl
-vim
-yq
-```
-
-## 🚀 Planned Automation Areas
-
-- Device inventory collection
-- Health checks
-- Virtual server creation
-- Pool / service group creation
-- Backend server management
-- Health monitor configuration
-- SSL/TLS configuration
-- Configuration backups
-- Configuration validation
-- Pre-checks
-- Post-checks
-- Operational state collection
-- Statistics collection
-- Configuration deployment
-- Bulk changes
-- Reporting
-- Automated remediation
-- CI/CD integration
-
-## ⚙️ Automation Architecture
+### A10 Networks Thunder / ACOS
 
 ```text
-Git
- │
- ▼
-Docker Image
- │
- ├── Python
- │
- ├── Ansible
- │
- ├── REST APIs
- │
- └── Automation Tools
- │
- ▼
-Load Balancers / ADCs
- │
- ├── F5 BIG-IP
- ├── A10 Thunder
- └── NetScaler ADC
- │
- ▼
-Validation / Reporting
+a10.acos_axapi
 ```
 
-## 🗂️ Planned Repository Structure
+Provides Ansible automation for A10 ACOS platforms using aXAPI-based workflows.
+
+### NetScaler ADC
+
+```text
+netscaler.adc
+```
+
+Provides Ansible modules for NetScaler ADC configuration and administration.
+
+---
+
+## 🗂️ Current Repository Structure
 
 ```text
 docker_loadbalancers_automation/
@@ -192,68 +139,163 @@ docker_loadbalancers_automation/
 ├── Dockerfile
 ├── requirements.txt
 ├── collections.yml
-├── .dockerignore
-├── .github/
-│   └── workflows/
 ├── README.md
 ├── README.es.md
 └── LICENSE
 ```
 
-## ⚡ Usage — Planned
+### `Dockerfile`
+
+Builds the Rocky Linux 10 automation environment, installs Python and system dependencies, installs the Python packages from `requirements.txt`, and then installs the Ansible collections from `collections.yml`.
+
+### `requirements.txt`
+
+Defines the Python and automation dependencies used inside the image.
+
+### `collections.yml`
+
+Defines the F5 Networks, A10 Networks and NetScaler Ansible collections installed during the Docker build.
+
+---
+
+## ⚡ Build the Image
+
+From the repository root:
 
 ```bash
 docker build -t docker_loadbalancers_automation .
 ```
 
+What the command does:
+
+- `docker build` — builds a Docker image from the Dockerfile.
+- `-t docker_loadbalancers_automation` — assigns a local image name/tag.
+- `.` — uses the current directory as the Docker build context.
+
+---
+
+## 🚀 Run the Container
+
+### Persistent automation container
+
+```bash
+docker run -d \
+  --name lb-automation \
+  docker_loadbalancers_automation
+```
+
+Then enter the container:
+
+```bash
+docker exec -it lb-automation bash
+```
+
+Because the Dockerfile uses `sleep infinity`, the container remains available for automation work until it is stopped.
+
+### Temporary interactive container
+
 ```bash
 docker run --rm -it docker_loadbalancers_automation bash
 ```
 
+- `--rm` — removes the container after exit.
+- `-it` — opens an interactive terminal.
+- `bash` — overrides the default command and opens a shell directly.
+
+### Mount an automation workspace
+
 ```bash
 docker run --rm -it \
-  -v "$PWD:/workspace" \
-  -w /workspace \
+  -v "$PWD:/automation" \
+  -w /automation \
   docker_loadbalancers_automation bash
 ```
 
-## 🔄 NetDevOps Workflow
+This mounts the current host directory into `/automation` inside the container.
+
+---
+
+## ✅ Validate the Environment
+
+After building the image, the main components can be checked with:
+
+```bash
+ansible --version
+```
+
+```bash
+ansible-galaxy collection list
+```
+
+```bash
+python3 -m pip show requests urllib3 f5-sdk acos-client
+```
+
+These commands verify the Ansible engine, installed vendor collections and Python dependencies.
+
+---
+
+## 🚀 Automation Scope
+
+The environment is intended to support workflows such as:
+
+- Device and platform information collection
+- Virtual Server / VIP administration
+- Pool and Service Group administration
+- Backend server / pool member management
+- Health monitor configuration
+- SSL/TLS-related automation
+- Configuration collection and backup workflows
+- Operational state collection
+- Validation and health checks
+- Bulk configuration changes
+- Reporting
+- Pre-check and post-check workflows
+
+Specific automation workflows will be added progressively as scripts, playbooks and labs are developed.
+
+---
+
+## ⚙️ Automation Architecture
 
 ```text
-Git
- │
- ▼
-Change
- │
- ▼
-Validation
- │
- ▼
-Containerized Automation
- │
- ▼
-ADC / Load Balancer
- │
- ▼
-Post-check
- │
- ▼
-Report
+Git / Automation Workspace
+          │
+          ▼
+Docker Container
+          │
+          ├── Python 3
+          ├── Ansible Core
+          ├── Vendor SDKs
+          ├── Ansible Collections
+          └── HTTP / REST libraries
+          │
+          ▼
+Load Balancers / ADCs
+          │
+          ├── F5 Networks BIG-IP
+          ├── A10 Networks Thunder / ACOS
+          └── NetScaler ADC
 ```
+
+---
 
 ## 🧪 Lab First
 
-Automation developed with this image should first be validated against laboratory or controlled environments before being used with production ADC infrastructure.
+Automation developed with this image should first be validated in laboratory or controlled environments before being adapted to production ADC infrastructure.
+
+---
 
 ## 🔒 Security Principles
 
-- Avoid storing credentials in the image
-- Use environment variables or secret management
-- Prefer HTTPS APIs
-- Keep dependencies version controlled
-- Run automation with least privilege where possible
-- Separate automation code from credentials
-- Validate changes before production deployment
+- Do not store credentials in the Docker image.
+- Do not commit API tokens or passwords to Git.
+- Prefer HTTPS for API communication.
+- Inject credentials at runtime through environment variables, secret stores or automation-platform credentials.
+- Validate changes before production deployment.
+- Use least-privilege accounts whenever possible.
+
+---
 
 ## 🔗 Related Projects
 
@@ -261,26 +303,34 @@ Automation developed with this image should first be validated against laborator
 - [docker_firewall_automation](https://github.com/andersonmavi30/docker_firewall_automation)
 - [loadbalancers_automation](https://github.com/andersonmavi30/loadbalancers_automation)
 
+---
+
 ## 🗺️ Roadmap
 
-- Build the initial Docker image
-- Add Python automation dependencies
-- Add F5 BIG-IP automation tooling
-- Add A10 aXAPI tooling
-- Add NetScaler NITRO API tooling
-- Add container smoke tests
-- Add multi-architecture builds
-- Add CI/CD
-- Publish versioned Docker images
-- Add example automation workflows
+The base Docker environment is already implemented. Future work may include:
+
+- Add example F5 BIG-IP playbooks and Python scripts
+- Add example A10 ACOS / aXAPI workflows
+- Add example NetScaler ADC playbooks and NITRO workflows
+- Add environment smoke tests
+- Add CI/CD validation
+- Add multi-architecture image builds
+- Publish versioned container images
+- Add reusable inventory examples
+- Add pre-check / post-check automation examples
+- Add reporting and validation workflows
+
+---
 
 ## 📊 Repository Status
 
-> 🚧 **Initial Development / Work in Progress**
+> 🚧 **Base Container Implemented / Continuous Development**
 
-Current target platforms:
+Current implemented foundation:
 
-**F5 Networks BIG-IP | A10 Networks Thunder ADC | Citrix NetScaler ADC**
+**Rocky Linux 10 | Python 3 | Ansible Core | F5 Networks | A10 Networks | NetScaler ADC**
+
+---
 
 ## 📄 License
 
