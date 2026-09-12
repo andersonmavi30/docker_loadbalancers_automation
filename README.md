@@ -340,7 +340,7 @@ MIT License — see `LICENSE`.
 
 **Anderson Martinez Virviescas**
 
-Network Administrator | Network Automation | NetDevOps | DevNet | Linux | Infrastructure Automation | Cybersecurity
+Network Administrator | Network Automation | NetDevOps | DevNet | Linux | Infrastructure Automation | Firewall Administrator
 
 GitHub: [@andersonmavi30](https://github.com/andersonmavi30)
 
