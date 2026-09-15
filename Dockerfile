@@ -1,5 +1,5 @@
 # Base: Rocky Linux 10
-FROM rockylinux:10
+FROM rockylinux/rockylinux:10
 
 # Working directory inside the container
 WORKDIR /automation
